@@ -7,24 +7,21 @@ export function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setMessage(null);
     setLoading(true);
 
     try {
       if (mode === 'signin') {
-        const { error } = await signIn(email, password);
-        if (error) setError(error.message);
+        await signIn(email, password);
       } else {
-        const { error } = await signUp(email, password);
-        if (error) setError(error.message);
-        else setMessage('Check your email for a confirmation link.');
+        await signUp(email, password);
       }
+    } catch (e) {
+      setError((e as { message: string }).message);
     } finally {
       setLoading(false);
     }
@@ -70,7 +67,6 @@ export function AuthForm() {
             className="input"
           />
           {error && <p className="error-text">{error}</p>}
-          {message && <p className="success-text">{message}</p>}
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
           </button>

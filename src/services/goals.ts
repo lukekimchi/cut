@@ -1,28 +1,30 @@
-import { supabase } from '../lib/supabase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 import type { Goals } from '../types';
 
 export async function getUserGoals(): Promise<Goals | null> {
-  const { data, error } = await supabase
-    .from('goals')
-    .select('*')
-    .maybeSingle();
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
 
-  if (error) throw error;
-  return data;
+  const snap = await getDoc(doc(db, 'goals', user.uid));
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  return {
+    id: snap.id,
+    user_id: user.uid,
+    target_weight: data.target_weight ?? null,
+    target_date: data.target_date ?? null,
+    calorie_target: data.calorie_target ?? null,
+    protein_target: data.protein_target ?? null,
+  };
 }
 
 export async function updateGoals(
   goals: Pick<Goals, 'target_weight' | 'target_date' | 'calorie_target' | 'protein_target'>
 ): Promise<Goals> {
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = auth.currentUser;
   if (!user) throw new Error('Not authenticated');
 
-  const { data, error } = await supabase
-    .from('goals')
-    .upsert({ ...goals, user_id: user.id }, { onConflict: 'user_id' })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  await setDoc(doc(db, 'goals', user.uid), goals, { merge: true });
+  return { id: user.uid, user_id: user.uid, ...goals };
 }
