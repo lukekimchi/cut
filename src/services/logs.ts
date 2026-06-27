@@ -5,6 +5,8 @@ import {
   getDoc,
   setDoc,
   getDocs,
+  addDoc,
+  deleteDoc,
   collection,
   query,
   where,
@@ -12,10 +14,14 @@ import {
   limit,
 } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import type { DailyLog, WeeklySummary, WeightTrendPoint } from '../types';
+import type { DailyLog, Meal, WeeklySummary, WeightTrendPoint } from '../types';
 
 function logsCol(uid: string) {
   return collection(db, 'dailyLogs', uid, 'entries');
+}
+
+function mealsCol(uid: string, date: string) {
+  return collection(db, 'dailyLogs', uid, 'entries', date, 'meals');
 }
 
 function toLog(uid: string, date: string, data: DocumentData): DailyLog {
@@ -29,6 +35,65 @@ function toLog(uid: string, date: string, data: DocumentData): DailyLog {
     created_at: data.created_at ?? '',
     updated_at: data.updated_at ?? '',
   };
+}
+
+async function recomputeDayTotals(uid: string, date: string) {
+  const [mealSnap, logSnap] = await Promise.all([
+    getDocs(mealsCol(uid, date)),
+    getDoc(doc(logsCol(uid), date)),
+  ]);
+  const mealDocs = mealSnap.docs.map(d => d.data());
+  const calories = mealDocs.reduce((s, m) => s + (m.calories ?? 0), 0);
+  const protein = mealDocs.reduce((s, m) => s + (m.protein ?? 0), 0);
+  const now = new Date().toISOString();
+  await setDoc(doc(logsCol(uid), date), {
+    date,
+    calories: calories || null,
+    protein: protein || null,
+    weight: logSnap.exists() ? (logSnap.data().weight ?? null) : null,
+    updated_at: now,
+    created_at: logSnap.exists() ? (logSnap.data().created_at ?? now) : now,
+  });
+}
+
+export async function getMeals(date: string): Promise<Meal[]> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+
+  const snap = await getDocs(query(mealsCol(user.uid, date), orderBy('createdAt')));
+  return snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Meal, 'id'>) }));
+}
+
+export async function addMeal(
+  date: string,
+  meal: { name: string; calories: number | null; protein: number | null }
+): Promise<Meal> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+
+  const createdAt = new Date().toISOString();
+  const ref = await addDoc(mealsCol(user.uid, date), { ...meal, createdAt });
+  await recomputeDayTotals(user.uid, date);
+  return { id: ref.id, ...meal, createdAt };
+}
+
+export async function deleteMeal(date: string, mealId: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+
+  await deleteDoc(doc(mealsCol(user.uid, date), mealId));
+  await recomputeDayTotals(user.uid, date);
+}
+
+export async function logWeight(date: string, weight: number | null): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+
+  await setDoc(
+    doc(logsCol(user.uid), date),
+    { weight, date, updated_at: new Date().toISOString() },
+    { merge: true }
+  );
 }
 
 export async function getDailyLog(date: string): Promise<DailyLog | null> {

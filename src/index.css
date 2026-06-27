@@ -424,3 +424,201 @@ html, body, #root {
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) opacity(0.4);
 }
+
+/* Inline date input in page header */
+.date-inline {
+  width: auto;
+  font-size: 13px;
+  padding: 6px 10px;
+}
+
+/* Daily totals card */
+.log-totals {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.log-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.log-total-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.log-total-value {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.log-total-target, .log-total-unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--bg-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.over { background: var(--warn); }
+
+/* Meal list */
+.meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meal-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.meal-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meal-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meal-item-macros {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.meal-delete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-3);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.meal-delete-btn:hover:not(:disabled) {
+  background: var(--warn-dim);
+  color: var(--warn);
+}
+
+/* Add meal */
+.add-meal-btn { width: 100%; }
+
+.add-meal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+
+/* Weight form */
+.weight-form {
+  display: flex;
+  gap: 8px;
+}
+
+.weight-form .input { flex: 1; }
+.weight-form .btn { flex-shrink: 0; }
+
+/* Quick add saved meals */
+.quick-add-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.quick-add-item:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.quick-add-item.loading {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.quick-add-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.quick-add-plus {
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 1;
+  width: 24px;
+  text-align: center;
+}
+
+/* Save for quick add toggle */
+.save-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.save-toggle input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}

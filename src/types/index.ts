@@ -1,3 +1,19 @@
+export interface SavedMeal {
+  id: string;
+  name: string;
+  calories: number | null;
+  protein: number | null;
+  createdAt: string;
+}
+
+export interface Meal {
+  id: string;
+  name: string;
+  calories: number | null;
+  protein: number | null;
+  createdAt: string;
+}
+
 export interface DailyLog {
   id: string;
   user_id: string;
