@@ -1,6 +1,5 @@
 import { useAuth } from '../hooks/useAuth';
-
-type Page = 'dashboard' | 'log' | 'progress' | 'goals';
+import type { Page } from '../App';
 
 interface NavProps {
   currentPage: Page;
@@ -11,9 +10,8 @@ export function Nav({ currentPage, onNavigate }: NavProps) {
   const { signOut } = useAuth();
 
   const navItems: { page: Page; label: string; icon: string }[] = [
-    { page: 'dashboard', label: 'Home', icon: '◉' },
+    { page: 'progress', label: 'Home', icon: '◉' },
     { page: 'log', label: 'Log', icon: '+' },
-    { page: 'progress', label: 'Progress', icon: '↗' },
     { page: 'goals', label: 'Goals', icon: '◎' },
   ];
 

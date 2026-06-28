@@ -32,6 +32,7 @@ function toLog(uid: string, date: string, data: DocumentData): DailyLog {
     calories: data.calories ?? null,
     protein: data.protein ?? null,
     weight: data.weight ?? null,
+    calories_burned: data.calories_burned ?? null,
     created_at: data.created_at ?? '',
     updated_at: data.updated_at ?? '',
   };
@@ -46,13 +47,15 @@ async function recomputeDayTotals(uid: string, date: string) {
   const calories = mealDocs.reduce((s, m) => s + (m.calories ?? 0), 0);
   const protein = mealDocs.reduce((s, m) => s + (m.protein ?? 0), 0);
   const now = new Date().toISOString();
+  const existing = logSnap.exists() ? logSnap.data() : {};
   await setDoc(doc(logsCol(uid), date), {
     date,
     calories: calories || null,
     protein: protein || null,
-    weight: logSnap.exists() ? (logSnap.data().weight ?? null) : null,
+    weight: existing.weight ?? null,
+    calories_burned: existing.calories_burned ?? null,
     updated_at: now,
-    created_at: logSnap.exists() ? (logSnap.data().created_at ?? now) : now,
+    created_at: existing.created_at ?? now,
   });
 }
 
@@ -92,6 +95,16 @@ export async function logWeight(date: string, weight: number | null): Promise<vo
   await setDoc(
     doc(logsCol(user.uid), date),
     { weight, date, updated_at: new Date().toISOString() },
+    { merge: true }
+  );
+}
+
+export async function logExpenditure(date: string, caloriesBurned: number | null): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+  await setDoc(
+    doc(logsCol(user.uid), date),
+    { calories_burned: caloriesBurned, date, updated_at: new Date().toISOString() },
     { merge: true }
   );
 }
@@ -158,6 +171,19 @@ export async function getWeeklySummary(
       ? totalCalories - calorieTarget * daysTracked
       : null;
 
+  const dailyBreakdown = logs.map(l => ({
+    date: l.date,
+    calories: l.calories,
+    calories_burned: l.calories_burned,
+    deficit: l.calories != null && l.calories_burned != null
+      ? l.calories - l.calories_burned
+      : null,
+  }));
+  const deficitDays = dailyBreakdown.filter(d => d.deficit != null);
+  const totalDeficit = deficitDays.length > 0
+    ? deficitDays.reduce((s, d) => s + (d.deficit ?? 0), 0)
+    : null;
+
   return {
     weekStart: startStr,
     weekEnd: endStr,
@@ -170,6 +196,8 @@ export async function getWeeklySummary(
     weightChange,
     daysTracked,
     caloricSurplusDeficit,
+    totalDeficit,
+    dailyBreakdown,
   };
 }
 

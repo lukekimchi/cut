@@ -21,6 +21,7 @@ export interface DailyLog {
   calories: number | null;
   protein: number | null;
   weight: number | null;
+  calories_burned: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -32,6 +33,13 @@ export interface Goals {
   target_date: string | null;
   calorie_target: number | null;
   protein_target: number | null;
+}
+
+export interface DailyDeficitEntry {
+  date: string;
+  calories: number | null;
+  calories_burned: number | null;
+  deficit: number | null;
 }
 
 export interface WeeklySummary {
@@ -46,6 +54,8 @@ export interface WeeklySummary {
   weightChange: number | null;
   daysTracked: number;
   caloricSurplusDeficit: number | null;
+  totalDeficit: number | null;
+  dailyBreakdown: DailyDeficitEntry[];
 }
 
 export interface WeightTrendPoint {
