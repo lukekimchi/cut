@@ -10,7 +10,7 @@ export type Page = 'progress' | 'log' | 'goals';
 
 function App() {
   const { user, loading } = useAuth();
-  const [page, setPage] = useState<Page>('progress');
+  const [page, setPage] = useState<Page>('log');
 
   if (loading) {
     return (
@@ -26,12 +26,15 @@ function App() {
 
   return (
     <div className="app">
-      <Nav currentPage={page} onNavigate={navigate} />
+      <header className="top-bar">
+        <span className="top-bar-brand">cut.</span>
+      </header>
       <main className="main">
         {page === 'progress' && <Progress />}
         {page === 'log' && <LogEntry />}
         {page === 'goals' && <Goals />}
       </main>
+      <Nav currentPage={page} onNavigate={navigate} />
     </div>
   );
 }

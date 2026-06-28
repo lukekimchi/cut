@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { format, differenceInWeeks, parseISO } from 'date-fns';
 import { useGoals } from '../hooks/useGoals';
+import { useAuth } from '../hooks/useAuth';
 import { getWeightTrend } from '../services/logs';
 import type { WeightTrendPoint } from '../types';
 
 export function Goals() {
   const { goals, loading, saveGoals } = useGoals();
+  const { signOut } = useAuth();
   const [targetWeight, setTargetWeight] = useState('');
   const [targetDate, setTargetDate] = useState('');
   const [calorieTarget, setCalorieTarget] = useState('');
@@ -164,6 +166,8 @@ export function Goals() {
           {saving ? 'Saving...' : 'Save Goals'}
         </button>
       </form>
+
+      <button className="btn btn-signout" onClick={signOut}>Sign out</button>
     </div>
   );
 }
